@@ -43,4 +43,62 @@ class OrganizationController extends Controller
             }
         }
     }
+    public function show(Request $request)
+    {
+        $requestedOrganizationName = $request->query('org-name');
+        $OrganizationFromDatabase = Organization::where('name', $requestedOrganizationName);
+        if (! $OrganizationFromDatabase->exists()) {
+            return response()->json(['responseMessage' => "Organization '{$requestedOrganizationName}' does not exist", "code" => 400], 400);
+        }
+        $organizationId = Organization::where('name', $request->org_name)->get('id')[0]->id;
+
+        $parentOrganizations = Organization::find($organizationId)->relations()->get();
+        return $parentOrganizations;
+        $parentOrganizationsIdArray = [];
+        foreach ($parentOrganizations as $parentOrganization) {
+            $parentOrganizationsIdArray[] = $parentOrganization->parent_id;
+        }
+
+        $sisterOrganizations = OrganizationRelationship::whereIn('parent_id', $parentOrganizationsIdArray)->get('daughter_id');
+        $sisterOrganizationsIdArray = [];
+        foreach ($sisterOrganizations as $sisterOrganization) {
+            $sisterOrganizationsIdArray[] = $sisterOrganization->daughter_id;
+        }
+        $daughterOrganizations = Organization::find($organizationId)->daughters()->get('daughter_id');
+        $daughterOrganizationsIdArray = [];
+        foreach ($daughterOrganizations as $daughterOrganization) {
+            $daughterOrganizationsIdArray[] = $daughterOrganization->daughter_id;
+        }
+        $parentDaughterSisterIds = array_merge($daughterOrganizationsIdArray, $sisterOrganizationsIdArray, $parentOrganizationsIdArray);
+        $organizationsWithUnknownRelationTypes = Organization::whereIn('id', $parentDaughterSisterIds)->select('id', 'name')->orderBy('name')->paginate(100)->all();
+        $parentDaughterSisterOrganizationsWithRelationTypes = [];
+        foreach ($organizationsWithUnknownRelationTypes as $organizationWithUnknownRelationType) {
+
+            foreach ($daughterOrganizationsIdArray as $daughterOrganizationId) {
+                if ($organizationWithUnknownRelationType->id == $daughterOrganizationId) {
+                    $organizationWithDaughterRelationType = $organizationWithUnknownRelationType;
+                    $organizationWithDaughterRelationType['relationship_type'] = 'daughter';
+                    $parentDaughterSisterOrganizationsWithRelationTypes[] = $organizationWithDaughterRelationType;
+                    continue 2;
+                }
+            }
+            foreach ($parentOrganizationsIdArray as $parentOrganizationId) {
+                if ($organizationWithUnknownRelationType->id == $parentOrganizationId) {
+                    $organizationWithParentRelationType = $organizationWithUnknownRelationType;
+                    $organizationWithParentRelationType['relationship_type'] = 'parent';
+                    $parentDaughterSisterOrganizationsWithRelationTypes[] = $organizationWithParentRelationType;
+                    continue 2;
+                }
+            }
+            foreach ($sisterOrganizationsIdArray as $sisterOrganizationId) {
+                if ($organizationWithUnknownRelationType->id == $sisterOrganizationId) {
+                    $organizationWithParentRelationType = $organizationWithUnknownRelationType;
+                    $organizationWithParentRelationType['relationship_type'] = 'sister';
+                    $parentDaughterSisterOrganizationsWithRelationTypes[] = $organizationWithParentRelationType;
+                    continue 2;
+                }
+            }
+        }
+        return response($parentDaughterSisterOrganizationsWithRelationTypes, 200);
+    }
 }
