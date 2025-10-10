@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Organization extends Model
 {
+    use HasFactory;
     public function parents(): BelongsToMany
     {
         return $this->BelongsToMany(Organization::class, 'organization_relationships', 'daughter_id', 'parent_id');
