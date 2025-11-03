@@ -52,8 +52,8 @@ class OrganizationController extends Controller
         }
         $organizationId = Organization::where('name', $request->org_name)->get('id')[0]->id;
 
-        $parentOrganizations = Organization::find($organizationId)->relations()->get();
-        return $parentOrganizations;
+        $parentOrganizations = Organization::find($organizationId)->parents()->get();
+
         $parentOrganizationsIdArray = [];
         foreach ($parentOrganizations as $parentOrganization) {
             $parentOrganizationsIdArray[] = $parentOrganization->parent_id;
