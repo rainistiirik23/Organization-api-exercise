@@ -79,7 +79,7 @@ class OrganizationController extends Controller
                     $organizationWithDaughterRelationType = $organizationWithUnknownRelationType;
                     $organizationWithDaughterRelationType['relationship_type'] = 'daughter';
                     $parentDaughterSisterOrganizationsWithRelationTypes[] = $organizationWithDaughterRelationType;
-                    continue 2;
+                    continue 2; //End the current loop and parent loop iteration
                 }
             }
             foreach ($parentOrganizationsIdArray as $parentOrganizationId) {
@@ -87,7 +87,7 @@ class OrganizationController extends Controller
                     $organizationWithParentRelationType = $organizationWithUnknownRelationType;
                     $organizationWithParentRelationType['relationship_type'] = 'parent';
                     $parentDaughterSisterOrganizationsWithRelationTypes[] = $organizationWithParentRelationType;
-                    continue 2;
+                    continue 2;  //End the current loop and parent loop iteration
                 }
             }
             foreach ($sisterOrganizationsIdArray as $sisterOrganizationId) {
@@ -95,7 +95,7 @@ class OrganizationController extends Controller
                     $organizationWithParentRelationType = $organizationWithUnknownRelationType;
                     $organizationWithParentRelationType['relationship_type'] = 'sister';
                     $parentDaughterSisterOrganizationsWithRelationTypes[] = $organizationWithParentRelationType;
-                    continue 2;
+                    continue 2;  //End the current loop and parent loop iteration
                 }
             }
         }
