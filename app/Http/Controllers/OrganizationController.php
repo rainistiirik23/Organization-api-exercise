@@ -37,7 +37,7 @@ class OrganizationController extends Controller
         }
         OrganizationRelationship::insert($parentIdwithDaughterIdArray);
         for ($i = 0; $i < count($organizations); $i++) {
-            if (array_key_exists('daughters', $organizations[$i])) {
+            if (array_key_exists('daughters', $organizations[$i]) && count($organizations[$i]['daughters'])) {
                 $parentOrganization = Organization::where('name', $organizations[$i]['org_name'])->get();
                 $this->insertDaughterParentOrganizations($organizations[$i]['daughters'], $parentOrganization[0]->id);
             }
