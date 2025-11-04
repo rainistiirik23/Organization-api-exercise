@@ -58,47 +58,20 @@ class OrganizationController extends Controller
         foreach ($parentOrganizations as $parentOrganization) {
             $parentOrganizationsIdArray[] = $parentOrganization->id;
         }
-
-        $sisterOrganizations = OrganizationRelationship::whereIn('parent_id', $parentOrganizationsIdArray)->get('daughter_id');
-        $sisterOrganizationsIdArray = [];
-        foreach ($sisterOrganizations as $sisterOrganization) {
-            $sisterOrganizationsIdArray[] = $sisterOrganization->daughter_id;
-        }
+        $sisterOrganizationIdValues = OrganizationRelationship::whereIn('parent_id', $parentOrganizationsIdArray)->get('daughter_id');
+        $sisterOrganizations = Organization::whereIn('id', $sisterOrganizationIdValues)->get('name');
         $daughterOrganizations = Organization::find($organizationId)->daughters()->get();
-        $daughterOrganizationsIdArray = [];
-        foreach ($daughterOrganizations as $daughterOrganization) {
-            $daughterOrganizationsIdArray[] = $daughterOrganization->id;
-        }
-        $parentDaughterSisterIds = array_merge($daughterOrganizationsIdArray, $sisterOrganizationsIdArray, $parentOrganizationsIdArray);
-        $organizationsWithUnknownRelationTypes = Organization::whereIn('id', $parentDaughterSisterIds)->select('id', 'name')->orderBy('name')->paginate(100)->all();
         $parentDaughterSisterOrganizationsWithRelationTypes = [];
-        foreach ($organizationsWithUnknownRelationTypes as $organizationWithUnknownRelationType) {
-
-            foreach ($daughterOrganizationsIdArray as $daughterOrganizationId) {
-                if ($organizationWithUnknownRelationType->id == $daughterOrganizationId) {
-                    $organizationWithDaughterRelationType = $organizationWithUnknownRelationType;
-                    $organizationWithDaughterRelationType['relationship_type'] = 'daughter';
-                    $parentDaughterSisterOrganizationsWithRelationTypes[] = $organizationWithDaughterRelationType;
-                    continue 2; //End the current loop and parent loop iteration
-                }
-            }
-            foreach ($parentOrganizationsIdArray as $parentOrganizationId) {
-                if ($organizationWithUnknownRelationType->id == $parentOrganizationId) {
-                    $organizationWithParentRelationType = $organizationWithUnknownRelationType;
-                    $organizationWithParentRelationType['relationship_type'] = 'parent';
-                    $parentDaughterSisterOrganizationsWithRelationTypes[] = $organizationWithParentRelationType;
-                    continue 2;  //End the current loop and parent loop iteration
-                }
-            }
-            foreach ($sisterOrganizationsIdArray as $sisterOrganizationId) {
-                if ($organizationWithUnknownRelationType->id == $sisterOrganizationId) {
-                    $organizationWithParentRelationType = $organizationWithUnknownRelationType;
-                    $organizationWithParentRelationType['relationship_type'] = 'sister';
-                    $parentDaughterSisterOrganizationsWithRelationTypes[] = $organizationWithParentRelationType;
-                    continue 2;  //End the current loop and parent loop iteration
-                }
-            }
-        }
-        return response($parentDaughterSisterOrganizationsWithRelationTypes, 200);
+        foreach ($daughterOrganizations as $daughterOrganization) {
+            $parentDaughterSisterOrganizationsWithRelationTypes[] = ['name' => $daughterOrganization->name, 'relationship_type' => 'daughter'];
+        };
+        foreach ($sisterOrganizations as $sisterOrganization) {
+            $parentDaughterSisterOrganizationsWithRelationTypes[] = ['name' => $sisterOrganization->name, 'relationship_type' => 'sister'];
+        };
+        foreach ($parentOrganizations as $parentOrganization) {
+            $parentDaughterSisterOrganizationsWithRelationTypes[] = ['name' => $parentOrganization->name, 'relationship_type' => 'parent'];
+        };
+        $sortedParentDaughterSisterOrganizationsWithRelationTypes = collect($parentDaughterSisterOrganizationsWithRelationTypes)->sortBy('name')->values()->paginate(100);
+        return response($sortedParentDaughterSisterOrganizationsWithRelationTypes, 200);
     }
 }

@@ -13,7 +13,8 @@ class OrganizationRelationshipSeeder extends Seeder
      */
     public function run(): void
     {
-        $OrganizationRelationshipCreationCount = 1000;
+
+        $OrganizationRelationshipCreationCount = 10000;
         $insertedOrganizationRelationships = [];
         for ($i = 0; $i <= $OrganizationRelationshipCreationCount; $i++) {
             $parentId   = Organization::inRandomOrder()->first()->id;
