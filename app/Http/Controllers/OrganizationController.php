@@ -64,7 +64,7 @@ class OrganizationController extends Controller
         foreach ($sisterOrganizations as $sisterOrganization) {
             $sisterOrganizationsIdArray[] = $sisterOrganization->daughter_id;
         }
-        $daughterOrganizations = Organization::find($organizationId)->daughters()->get('daughter_id');
+        $daughterOrganizations = Organization::find($organizationId)->daughters()->get();
         $daughterOrganizationsIdArray = [];
         foreach ($daughterOrganizations as $daughterOrganization) {
             $daughterOrganizationsIdArray[] = $daughterOrganization->daughter_id;
