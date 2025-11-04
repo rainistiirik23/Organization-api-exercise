@@ -56,7 +56,7 @@ class OrganizationController extends Controller
 
         $parentOrganizationsIdArray = [];
         foreach ($parentOrganizations as $parentOrganization) {
-            $parentOrganizationsIdArray[] = $parentOrganization->parent_id;
+            $parentOrganizationsIdArray[] = $parentOrganization->id;
         }
 
         $sisterOrganizations = OrganizationRelationship::whereIn('parent_id', $parentOrganizationsIdArray)->get('daughter_id');
@@ -67,7 +67,7 @@ class OrganizationController extends Controller
         $daughterOrganizations = Organization::find($organizationId)->daughters()->get();
         $daughterOrganizationsIdArray = [];
         foreach ($daughterOrganizations as $daughterOrganization) {
-            $daughterOrganizationsIdArray[] = $daughterOrganization->daughter_id;
+            $daughterOrganizationsIdArray[] = $daughterOrganization->id;
         }
         $parentDaughterSisterIds = array_merge($daughterOrganizationsIdArray, $sisterOrganizationsIdArray, $parentOrganizationsIdArray);
         $organizationsWithUnknownRelationTypes = Organization::whereIn('id', $parentDaughterSisterIds)->select('id', 'name')->orderBy('name')->paginate(100)->all();
