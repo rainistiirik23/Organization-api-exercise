@@ -50,7 +50,7 @@ class OrganizationController extends Controller
         if (! $OrganizationFromDatabase->exists()) {
             return response()->json(['responseMessage' => "Organization '{$requestedOrganizationName}' does not exist", "code" => 400], 400);
         }
-        $organizationId = Organization::where('name', $request->org_name)->get('id')[0]->id;
+        $organizationId = Organization::where('name', $requestedOrganizationName)->get('id')[0]->id;
 
         $parentOrganizations = Organization::find($organizationId)->parents()->get();
 
