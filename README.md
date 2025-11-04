@@ -16,7 +16,7 @@ Run migrations.
 Optional but it's recommended to run seeders too.
 
     php artisan seed:DatabaseSeeder
-##Api routes
+## Api routes
 
 Route for adding organizations and their daughter organizations
 
