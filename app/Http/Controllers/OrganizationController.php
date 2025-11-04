@@ -50,13 +50,13 @@ class OrganizationController extends Controller
         if (! $OrganizationFromDatabase->exists()) {
             return response()->json(['responseMessage' => "Organization '{$requestedOrganizationName}' does not exist", "code" => 400], 400);
         }
-        $organizationId = Organization::where('name', $request->org_name)->get('id')[0]->id;
+        $organizationId = Organization::where('name', $requestedOrganizationName)->get('id')[0]->id;
 
         $parentOrganizations = Organization::find($organizationId)->parents()->get();
 
         $parentOrganizationsIdArray = [];
         foreach ($parentOrganizations as $parentOrganization) {
-            $parentOrganizationsIdArray[] = $parentOrganization->parent_id;
+            $parentOrganizationsIdArray[] = $parentOrganization->id;
         }
 
         $sisterOrganizations = OrganizationRelationship::whereIn('parent_id', $parentOrganizationsIdArray)->get('daughter_id');
@@ -64,10 +64,10 @@ class OrganizationController extends Controller
         foreach ($sisterOrganizations as $sisterOrganization) {
             $sisterOrganizationsIdArray[] = $sisterOrganization->daughter_id;
         }
-        $daughterOrganizations = Organization::find($organizationId)->daughters()->get('daughter_id');
+        $daughterOrganizations = Organization::find($organizationId)->daughters()->get();
         $daughterOrganizationsIdArray = [];
         foreach ($daughterOrganizations as $daughterOrganization) {
-            $daughterOrganizationsIdArray[] = $daughterOrganization->daughter_id;
+            $daughterOrganizationsIdArray[] = $daughterOrganization->id;
         }
         $parentDaughterSisterIds = array_merge($daughterOrganizationsIdArray, $sisterOrganizationsIdArray, $parentOrganizationsIdArray);
         $organizationsWithUnknownRelationTypes = Organization::whereIn('id', $parentDaughterSisterIds)->select('id', 'name')->orderBy('name')->paginate(100)->all();

@@ -17,6 +17,6 @@ class Organization extends Model
     }
     public function daughters(): BelongsToMany
     {
-        return $this->BelongsToMany(Organization::class, 'oganization_relationships', 'parent_id', 'daughter_id');
+        return $this->BelongsToMany(Organization::class, 'organization_relationships', 'parent_id', 'daughter_id');
     }
 }
