@@ -15,7 +15,6 @@ class OrganizationController extends Controller
         $organizationName = $request->org_name;
         $doesOrganizationExist = Organization::where('name', $organizationName)->exists();
         $isOrganizationStringValueEmpty =  Str::of($organizationName)->trim()->isEmpty();
-
         if ($isOrganizationStringValueEmpty) {
             return response()->json(['responseMessage' => "Organization value cannot be empty", "code" => 400], 400);
         } elseif ($doesOrganizationExist) {
@@ -56,9 +55,7 @@ class OrganizationController extends Controller
             return response()->json(['responseMessage' => "Organization '{$requestedOrganizationName}' does not exist", "code" => 404], 404);
         }
         $organizationId = Organization::where('name', $requestedOrganizationName)->get('id')[0]->id;
-
         $parentOrganizations = Organization::find($organizationId)->parents()->get();
-
         $parentOrganizationsIdArray = [];
         foreach ($parentOrganizations as $parentOrganization) {
             $parentOrganizationsIdArray[] = $parentOrganization->id;
