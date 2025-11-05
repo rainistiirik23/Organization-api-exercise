@@ -1,7 +1,5 @@
 ## Introduction
 
-This project is a organization api exercise for acty.
-
 This here is only a quick setup to get to get the app going, more details on code usage is on the [wiki](https://github.com/rainistiirik23/Organization-api-exercise/wiki).
 
 ## Quick setup
