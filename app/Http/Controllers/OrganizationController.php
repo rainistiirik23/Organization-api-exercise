@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Organization;
 use App\Models\OrganizationRelationship;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class OrganizationController extends Controller
 {
@@ -13,7 +14,11 @@ class OrganizationController extends Controller
     {
         $organizationName = $request->org_name;
         $doesOrganizationExist = Organization::where('name', $organizationName)->exists();
-        if ($doesOrganizationExist) {
+        $isOrganizationStringValueEmpty =  Str::of($organizationName)->trim()->isEmpty();
+
+        if ($isOrganizationStringValueEmpty) {
+            return response()->json(['responseMessage' => "Organization value cannot be empty", "code" => 400], 400);
+        } elseif ($doesOrganizationExist) {
             return response()->json(['responseMessage' => "Organization {$organizationName} already exists", "code" => 400], 400);
         }
         Organization::create(['name' => $organizationName]);
