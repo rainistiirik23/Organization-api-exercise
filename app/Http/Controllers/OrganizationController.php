@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Organization;
 use App\Models\OrganizationRelationship;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class OrganizationController extends Controller
 {
@@ -13,7 +14,10 @@ class OrganizationController extends Controller
     {
         $organizationName = $request->org_name;
         $doesOrganizationExist = Organization::where('name', $organizationName)->exists();
-        if ($doesOrganizationExist) {
+        $isOrganizationStringValueEmpty =  Str::of($organizationName)->trim()->isEmpty();
+        if ($isOrganizationStringValueEmpty) {
+            return response()->json(['responseMessage' => "Organization value cannot be empty", "code" => 400], 400);
+        } elseif ($doesOrganizationExist) {
             return response()->json(['responseMessage' => "Organization {$organizationName} already exists", "code" => 400], 400);
         }
         Organization::create(['name' => $organizationName]);
@@ -48,12 +52,10 @@ class OrganizationController extends Controller
         $requestedOrganizationName = $request->query('org-name');
         $OrganizationFromDatabase = Organization::where('name', $requestedOrganizationName);
         if (! $OrganizationFromDatabase->exists()) {
-            return response()->json(['responseMessage' => "Organization '{$requestedOrganizationName}' does not exist", "code" => 400], 400);
+            return response()->json(['responseMessage' => "Organization '{$requestedOrganizationName}' does not exist", "code" => 404], 404);
         }
         $organizationId = Organization::where('name', $requestedOrganizationName)->get('id')[0]->id;
-
         $parentOrganizations = Organization::find($organizationId)->parents()->get();
-
         $parentOrganizationsIdArray = [];
         foreach ($parentOrganizations as $parentOrganization) {
             $parentOrganizationsIdArray[] = $parentOrganization->id;
